@@ -1,4 +1,0 @@
-body::-webkit-scrollbar { width: 8px; height: 8px; }
-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
-#platform { color: #000; background-color: #fff; }
-#platform option { color: #000; background-color: #fff; }
