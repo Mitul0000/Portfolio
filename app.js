@@ -7,9 +7,9 @@ const cors = require('cors');
 const MongoDBConnect = require("./config/db");
 const authRoutes = require("./router/authRoutes");
 const requestToolRoutes = require("./router/toolRequestRoutes");
-const {commentRoutes} = require('./router/commentRoutes');
-const {blogRoutes} = require('./router/blogRoutes');
-const {toolRoutes} = require('./router/toolsController')
+const commentRoutes = require('./router/commentRoutes');
+const blogRoutes = require('./router/blogRoutes');
+const toolRoutes = require('./router/toolsController')
 const app = express();
 app.use(cors({
   origin: '*'

@@ -10,7 +10,7 @@ const requestToolRoutes = express.Router();
 
 //private routes
 requestToolRoutes.get("/get-requests",isAuth,getAllRequest);
-requestToolRoutes.post("tool-request",isAuth,toolRequest);
+requestToolRoutes.post("/tool-request",isAuth,toolRequest);
 
 
 module.exports = requestToolRoutes;

@@ -1,16 +1,16 @@
 //External modules
 const express = require('express');
-const { isAuth } = require('../middleware/isAuth');
+
 
 //Internal modules
-const {getAllRequest,toolRequest} = require('../controller/toolRequestController')
+const {getPaidTools,getFreeTools} = require('../controller/toolsController')
 
 
-const requestToolRoutes = express.Router();
+const toolRoutes = express.Router();
 
-//private routes
-requestToolRoutes.get("/get-requests",isAuth,getAllRequest);
-requestToolRoutes.post("tool-request",isAuth,toolRequest);
+//public routes
+toolRoutes.get("/paid-tools",getPaidTools);
+toolRoutes.post("/free-tools",getFreeTools);
 
 
-module.exports = requestToolRoutes;
+module.exports = toolRoutes;
