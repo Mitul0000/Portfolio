@@ -10,7 +10,7 @@ const blogRoutes = express.Router();
 
 //public routes
 blogRoutes.get('/get-all',getAllBlogs);
-blogRoutes.get('/get:blogId',getBlog);
+blogRoutes.get('/get/:blogId',getBlog);
 
 
 module.exports = blogRoutes;

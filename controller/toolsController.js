@@ -4,6 +4,7 @@ exports.getPaidTools = async (request,response)=>{
   try{
     const paidTools = await Tools.find({type:"PAID"})
     return response.status(200).json({
+      paidTools:paidTools,
       success:true,
       message:"Paid tool fetched successfully"
     })
@@ -19,6 +20,7 @@ exports.getFreeTools = async (request,response)=>{
   try{
     const freeTools = await Tools.find({type:"FREE"})
     return response.status(200).json({
+      freeTools:freeTools,
       success:true,
       message:"Free tool fetched successfully"
     })

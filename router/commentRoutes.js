@@ -3,7 +3,7 @@ const express = require('express');
 const { isAuth } = require('../middleware/isAuth');
 
 //Internal modules
-const {getComment,postCommnet} = require('../controller/commentController')
+const {getComment,postComment} = require('../controller/commentController')
 
 
 const commentRoutes = express.Router();
@@ -12,7 +12,7 @@ const commentRoutes = express.Router();
 commentRoutes.get('/get:blogId',getComment);
 
 //private routes
-commentRoutes.post('/post',isAuth,postCommnet);
+commentRoutes.post('/post',isAuth,postComment);
 
 
 module.exports = commentRoutes;

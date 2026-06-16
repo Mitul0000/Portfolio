@@ -10,7 +10,7 @@ const toolRoutes = express.Router();
 
 //public routes
 toolRoutes.get("/paid-tools",getPaidTools);
-toolRoutes.post("/free-tools",getFreeTools);
+toolRoutes.get("/free-tools",getFreeTools);
 
 
 module.exports = toolRoutes;
