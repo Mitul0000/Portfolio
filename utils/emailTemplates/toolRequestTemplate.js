@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 exports.toolRequestTemplate = (data) => `<!DOCTYPE html>
 <html lang="en">
 <head>

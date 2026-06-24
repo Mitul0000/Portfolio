@@ -2,7 +2,7 @@ const Blog = require("../models/blog");
 
 exports.getAllBlogs = async (request, response) => {
   try {
-    const Blogs = await Blog.find().select("title thumbnail tag -_id");
+    const Blogs = await Blog.find().select("title thumbnail tag");
 
     if (Blogs.length === 0) {
       return response.status(404).json({

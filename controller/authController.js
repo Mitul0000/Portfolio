@@ -1,6 +1,5 @@
 // This file has three functions which includes resister,login and logout.
 
-
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const { check, validationResult } = require("express-validator");
@@ -8,7 +7,9 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const { generateTokens } = require("../utils/generateTokens");
-const TokenFamily = require("../models/TokenFamily")
+const TokenFamily = require("../models/TokenFamily");
+const {forgotPasswordTemplate} = require("../utils/emailTemplates/forgotTemplate");
+const { sendMail } = require("../utils/sendMail");
 
 exports.createUser = [
   // This function takes firstName,lastName,email,terms and password from the frontend and validate them with specific conditions using express-validator.If it fails to meet the condition then respective error message is sent to the frontend. If there is no error then the details are saved in database. And if there is email dublication error then it is handled separately in the catch blog.
@@ -191,18 +192,102 @@ exports.logoutUser = async (request, response) => {
 
     const userId = request.user._id;
 
-    
-    await TokenFamily.deleteOne({ userId })
+    await TokenFamily.deleteOne({ userId });
 
     return response.status(200).json({
       success: true,
       message: "Logged out successfully",
-    })
-
+    });
   } catch (err) {
     return response.status(500).json({
       success: false,
       message: "Error logging out. Please try again.",
-    })
+    });
   }
-}
+};
+
+exports.forgotPassword = async (request, response) => {
+  // This function receives email from the frontend and finds the user. If found then it generates forgotoken and create a reset link with it and the id of the user. It then sends the link to the email.
+
+  console.log("Request came to forgotPassword handler")
+  try {
+    
+    const { email } = request.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return response.status(404).json({
+        success: false,
+        message: "User does not exists",
+      });
+    }
+
+    const SECRET = process.env.FORGOT_SECRET;
+
+    const forgotToken = jwt.sign({ email: user.email }, SECRET, {
+      expiresIn: "5min",
+    });
+
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}/${forgotToken}`;
+
+    console.log(`Reset link generated ${resetLink}`)
+
+    await sendMail(
+      user.email,
+      "Reset Your Password — Digifello AI",
+      forgotPasswordTemplate(user, resetLink),
+    );
+
+    return response.status(200).json({
+      success: true,
+      message: "Email sent successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    return response.status(500).json({
+      success: false,
+      message: "Something went wrong. Please try again.",
+    });
+  }
+};
+
+exports.resetLinkHandler = async (request, response) => {
+  // When the user clicks the reset it. It collect the id and the token from it. Checks if the user exits or not if exits then 
+  try {
+    const { id, token } = request.params;
+    console.log(id);
+    const { New_password, Confirm_password } = request.body;
+    const user = await User.findById(id);
+    if (!user) {
+      return response.status(404).json({
+        success: false,
+        message: "User does not exists",
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.FORGOT_SECRET);
+
+    if (New_password === Confirm_password) {
+      const hashedpassword = await bcrypt.hash(New_password, 12);
+      user.password = hashedpassword;
+      await user.save();
+      await TokenFamily.deleteMany({ userId: user._id });
+
+      return response
+        .status(200)
+        .json({ success: false, message: "Password has been reset" });
+    } else {
+      return response.status(400).json({
+        success: false,
+        message: "Passwords do not match",
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    return response.status(500).json({
+      success: false,
+      message: "Something went wrong. Please try again.",
+    });
+  }
+};
