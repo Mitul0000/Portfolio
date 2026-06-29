@@ -6,7 +6,8 @@ const sendMail = require("../utils/sendMail");
 const User = require("../models/User");
 const { generateTokens } = require("../utils/generateTokens");
 const { alertTemplate } = require("../utils/emailTemplates/securityAlert");
-const bcyrpt = require("bcrypt");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 exports.refreshToken = async (request, response) => {
   //This function takes refresh token from the frontend. It decodes the token and find the userId. After the the refresh token is verified the tokenfamily is found using the user id. If the current token of the family does not match with the receive token but it is found in the array of the token which means that the token was stolen. In other cases the token is expired and invalid. If is passes all then new access and refresh token is generated and it is sent to the frontend.
@@ -48,9 +49,16 @@ exports.refreshToken = async (request, response) => {
         message: "Invalid refresh token",
       });
     }
+    console.log("Incoming token:");
+    console.log(refreshToken);
 
+    console.log("Current hash:");
+    console.log(Family.currentToken);
+
+    console.log("History:");
+    console.log(Family.tokenFamily);
     // Check if token matches current token
-    const isCurrentToken = await bcyrpt.compare(
+    const isCurrentToken = await bcrypt.compare(
       refreshToken,
       Family.currentToken,
     );
@@ -112,27 +120,52 @@ exports.refreshToken = async (request, response) => {
     );
 
     // All good — generate new tokens
-    const newAccessToken = jwt.sign({ userId: user.userId }, JWT_SECRET, {
-      expiresIn: "5s",
-    });
+    const newAccessToken = jwt.sign(
+      { userId: user.userId, jti: crypto.randomUUID() },
+      JWT_SECRET,
+      {
+        expiresIn: "5s",
+      },
+    );
+    console.log("Incoming token:");
+    console.log(refreshToken);
+
     const newRefreshToken = jwt.sign(
-      { userId: user.userId },
+      { userId: user.userId, jti: crypto.randomUUID() },
       process.env.REFRESH_SECRET,
       {
         expiresIn: "7d",
       },
     );
+    console.log("New token:");
+    console.log(newRefreshToken);
 
-    const hashedRefreshToken = await bcyrpt.hash(newRefreshToken, 12);
+    console.log("Tokens equal?", refreshToken === newRefreshToken);
+    const hashedRefreshToken = await bcrypt.hash(newRefreshToken, 12);
 
     // Move current to family history before replacing
 
-    Family.currentToken = hashedRefreshToken;
     Family.tokenFamily.push(Family.currentToken);
+    Family.currentToken = hashedRefreshToken;
+
     if (Family.tokenFamily.length > 5) {
       Family.tokenFamily.shift();
     }
     await Family.save();
+    const updated = await tokenFamily.findOne({ userId: user.userId });
+
+    console.log("Saved current hash:");
+    console.log(updated.currentToken);
+
+    console.log(
+      "Does OLD token match SAVED hash?",
+      await bcrypt.compare(refreshToken, updated.currentToken),
+    );
+
+    console.log(
+      "Does NEW token match SAVED hash?",
+      await bcrypt.compare(newRefreshToken, updated.currentToken),
+    );
 
     return response.status(200).json({
       success: true,
