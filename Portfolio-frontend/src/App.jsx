@@ -15,6 +15,7 @@ import ToolRequest from './pages/ToolRequest'
 import Dashboard from './pages/Dashboard'
 import About from './pages/About'
 import ResetPassword from './pages/ResetPassword'
+import Footer from './components/Footer'
 
 export default function App() {
   return (
@@ -46,6 +47,7 @@ export default function App() {
             </div>
           } />
         </Routes>
+        <Footer />
       </BrowserRouter>
     </AuthProvider>
   )
