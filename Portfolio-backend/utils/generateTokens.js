@@ -27,7 +27,7 @@ exports.generateTokens = async (user) => {
       currentToken: hashedRefreshToken,
       tokenFamily: [],
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
 
   return {

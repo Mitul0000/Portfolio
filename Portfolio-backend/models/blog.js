@@ -18,6 +18,10 @@ const blogSchema = new mongoose.Schema({
 
   tag:{
     type:String,
+  },
+  views: {
+    type:Number,
+    default:0
   }
 },{timestamps:true});
 

@@ -2,7 +2,7 @@ const Blog = require("../models/blog");
 
 exports.getAllBlogs = async (request, response) => {
   try {
-    const Blogs = await Blog.find().select("title thumbnail tag");
+    const Blogs = await Blog.find().select("title thumbnail tag views createdAt");
 
     if (Blogs.length === 0) {
       return response.status(404).json({
@@ -26,7 +26,11 @@ exports.getAllBlogs = async (request, response) => {
 exports.getBlog = async (request, response) => {
   try {
     const { blogId } = request.params;
-    const foundBlog = await Blog.findById(blogId);
+    const foundBlog = await Blog.findByIdAndUpdate(
+      blogId,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
 
     if (!foundBlog) {
       return response.status(404).json({
