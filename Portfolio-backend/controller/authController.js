@@ -8,7 +8,9 @@ const dotenv = require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const { generateTokens } = require("../utils/generateTokens");
 const TokenFamily = require("../models/TokenFamily");
-const {forgotPasswordTemplate} = require("../utils/emailTemplates/forgotTemplate");
+const {
+  forgotPasswordTemplate,
+} = require("../utils/emailTemplates/forgotTemplate");
 const { sendMail } = require("../utils/sendMail");
 
 exports.createUser = [
@@ -133,6 +135,13 @@ exports.loginUser = async (request, response) => {
   try {
     const user = await User.findOne({ email });
 
+    if (typeof email !== "string" || typeof password !== "string") {
+      return response.status(400).json({
+        success: false,
+        message: "Invalid input",
+      });
+    }
+
     if (!user) {
       return response.status(404).json({
         success: false,
@@ -209,10 +218,16 @@ exports.logoutUser = async (request, response) => {
 exports.forgotPassword = async (request, response) => {
   // This function receives email from the frontend and finds the user. If found then it generates forgotoken and create a reset link with it and the id of the user. It then sends the link to the email.
 
-  console.log("Request came to forgotPassword handler")
+  console.log("Request came to forgotPassword handler");
   try {
-    
     const { email } = request.body;
+
+    if (typeof email !== "string") {
+      return response.status(400).json({
+        success: false,
+        message: "Invalid input",
+      });
+    }
 
     const user = await User.findOne({ email });
 
@@ -231,7 +246,7 @@ exports.forgotPassword = async (request, response) => {
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}/${forgotToken}`;
 
-    console.log(`Reset link generated ${resetLink}`)
+    console.log(`Reset link generated ${resetLink}`);
 
     await sendMail(
       user.email,
@@ -253,7 +268,7 @@ exports.forgotPassword = async (request, response) => {
 };
 
 exports.resetLinkHandler = async (request, response) => {
-  // When the user clicks the reset it. It collect the id and the token from it. Checks if the user exits or not if exits then 
+  // When the user clicks the reset it. It collect the id and the token from it. Checks if the user exits or not if exits then
   try {
     const { id, token } = request.params;
     console.log(id);
