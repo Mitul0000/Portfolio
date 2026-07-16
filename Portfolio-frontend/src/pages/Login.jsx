@@ -32,7 +32,7 @@ export default function Login() {
       const status = err.response?.status
       // Email not verified
       if (status === 403) {
-        navigate('/verify-otp')
+        navigate('/verify-otp',{ state: { userId: data?.userId } })
         return
       }
       if (data?.errors) {

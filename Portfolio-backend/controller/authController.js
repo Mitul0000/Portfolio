@@ -172,6 +172,7 @@ exports.loginUser = async (request, response) => {
       return response.status(403).json({
         success: false,
         message: "Please verify your email before logging in",
+        userId: user._id,
       });
     }
     // Generate access token and refresh token

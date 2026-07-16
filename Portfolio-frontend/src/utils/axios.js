@@ -23,12 +23,24 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// Endpoints where a 401/419 means "bad credentials" or "not logged in yet",
+// NOT "session expired" — so we must NOT trigger refresh/redirect logic here.
+const AUTH_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/refresh"];
+
+const isAuthEndpoint = (url = "") =>
+  AUTH_ENDPOINTS.some((endpoint) => url.includes(endpoint));
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const skipAuthHandling = isAuthEndpoint(originalRequest?.url);
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !skipAuthHandling
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -57,10 +69,6 @@ api.interceptors.response.use(
         const { accessToken, refreshToken: newRefresh } = res.data;
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", newRefresh);
-        console.log(
-          "Saved to localStorage:",
-          localStorage.getItem("refreshToken"),
-        );
         processQueue(null, accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
@@ -75,7 +83,7 @@ api.interceptors.response.use(
     }
 
     // Token reuse detected
-    if (error.response?.status === 419) {
+    if (error.response?.status === 419 && !skipAuthHandling) {
       localStorage.clear();
       window.location.href = "/login";
     }
