@@ -11,7 +11,7 @@ exports.generateTokens = async (user) => {
   const accessToken = jwt.sign(
     { userId: user._id, email: user.email,jti: crypto.randomUUID(), },
     JWT_SECRET,
-    { expiresIn: "5s" },
+    { expiresIn: "15m" },
   );
   const refreshToken = jwt.sign(
     { userId: user._id, email: user.email,jti: crypto.randomUUID() },

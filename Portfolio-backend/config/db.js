@@ -3,8 +3,13 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
 
-const MongoDBConnect = mongoose.connect(process.env.MONGO_URI)
+if (!process.env.MONGO_URI) {
+  console.error('MONGO_URI is missing in .env')
+  process.exit(1)
+}
+
+const MongoDBConnect = mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('Error connecting to MongoDB:', err))
 
 module.exports = MongoDBConnect

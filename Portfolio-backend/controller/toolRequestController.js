@@ -30,11 +30,18 @@ exports.toolRequest = async (request, response) => {
       toolDescription:toolDescription,
     }
 
-    await sendMail(
+
+    try{
+      await sendMail(
       process.env.ADMIN_EMAIL,
       `New Tool Requested `,
       toolRequestTemplate(data),
     );
+    }catch(err){
+      console.log("Admin email not sent for tool request :- ",err)
+    }
+
+    
 
     return response.status(200).json({
       success: true,
