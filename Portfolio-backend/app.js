@@ -23,7 +23,7 @@ app.use('/api/comment/',commentRoutes);
 app.use('/api/tools/',toolRoutes);
 
 
-const port = 3000;
+const port = process.env.PORT;
 
 MongoDBConnect.then(() => {
   app.listen(port, () => {
@@ -31,4 +31,5 @@ MongoDBConnect.then(() => {
   });
 }).catch((err) => {
   console.error("Failed to connect to MongoDB:", err);
+  process.exit(1);
 });
