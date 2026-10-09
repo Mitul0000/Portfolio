@@ -6,8 +6,10 @@ const {sendMail} = require("../utils/sendMail");
 const User = require("../models/User");
 const { generateTokens } = require("../utils/generateTokens");
 const { alertTemplate } = require("../utils/emailTemplates/securityAlert");
-const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
 
 exports.refreshToken = async (request, response) => {
   //This function takes refresh token from the frontend. It decodes the token and find the userId. After the the refresh token is verified the tokenfamily is found using the user id. If the current token of the family does not match with the receive token but it is found in the array of the token which means that the token was stolen. In other cases the token is expired and invalid. If is passes all then new access and refresh token is generated and it is sent to the frontend.
@@ -58,10 +60,9 @@ exports.refreshToken = async (request, response) => {
     console.log("History:");
     console.log(Family.tokenFamily);
     // Check if token matches current token
-    const isCurrentToken = await bcrypt.compare(
-      refreshToken,
-      Family.currentToken,
-    );
+    const incomingHash = hashToken(refreshToken);
+    const isCurrentToken = incomingHash === Family.currentToken;
+    
     console.log("isCurrentToken:", isCurrentToken);
     console.log("tokenFamily length:", Family.tokenFamily.length);
     console.log("err from verify:", err);
@@ -71,7 +72,7 @@ exports.refreshToken = async (request, response) => {
       console.log("Current refresh token is not the refresh token found");
       let isOldToken = false;
       for (const oldHash of Family.tokenFamily) {
-        const match = await bcyrpt.compare(refreshToken, oldHash);
+        const match = incomingHash === oldHash;
         if (match) {
           console.log("Attack detected");
           isOldToken = true;
@@ -82,15 +83,17 @@ exports.refreshToken = async (request, response) => {
       if (isOldToken) {
         // ATTACK DETECTED
         const foundUser = await User.findById(user.userId);
-        Family.tokenFamily = [];
-        Family.currentToken = null;
-        await Family.save();
+        await tokenFamily.deleteOne({ userId: user.userId });
 
-        await sendMail(
-          foundUser.email,
-          "⚠️ Suspicious Login Activity Detected on Your Account",
-          alertTemplate(foundUser, request), // pass foundUser not User
-        );
+        try {
+          await sendMail(
+            foundUser.email,
+            "⚠️ Suspicious Login Activity Detected on Your Account",
+            alertTemplate(foundUser, request), // pass foundUser not User
+          );
+        } catch (mailErr) {
+          console.log("Security alert email failed:", mailErr.message);
+        }
 
         return response.status(419).json({
           success: false,
@@ -124,7 +127,7 @@ exports.refreshToken = async (request, response) => {
       { userId: user.userId, jti: crypto.randomUUID() },
       JWT_SECRET,
       {
-        expiresIn: "5s",
+        expiresIn: "15m",
       },
     );
     console.log("Incoming token:");
@@ -141,7 +144,7 @@ exports.refreshToken = async (request, response) => {
     console.log(newRefreshToken);
 
     console.log("Tokens equal?", refreshToken === newRefreshToken);
-    const hashedRefreshToken = await bcrypt.hash(newRefreshToken, 12);
+    const hashedRefreshToken = hashToken(newRefreshToken);
 
     // Move current to family history before replacing
 
@@ -159,12 +162,12 @@ exports.refreshToken = async (request, response) => {
 
     console.log(
       "Does OLD token match SAVED hash?",
-      await bcrypt.compare(refreshToken, updated.currentToken),
+      hashToken(refreshToken) === updated.currentToken,
     );
 
     console.log(
       "Does NEW token match SAVED hash?",
-      await bcrypt.compare(newRefreshToken, updated.currentToken),
+      hashToken(newRefreshToken) === updated.currentToken,
     );
 
     return response.status(200).json({

@@ -15,7 +15,7 @@ exports.postComment = async (request,response) => {
     })
   } catch(err){
     return response.status(500).json({
-      success:true,
+      success:false,
       message:err.message
     })
   }
@@ -28,7 +28,7 @@ exports.getComment = async (request,response) =>{
 
     return response.status(200).json({
       comments:foundComments,
-      success:false,
+      success:true,
       message:"All Comments fetched successfully."
     })
 

@@ -19,7 +19,10 @@ exports.generateTokens = async (user) => {
     { expiresIn: "7d" },
   );
 
-  const hashedRefreshToken = await bcrypt.hash(refreshToken, 12);
+  const hashToken = (t) => crypto.createHash("sha256").update(t).digest("hex");
+
+  const hashedRefreshToken = hashToken(refreshToken); 
+
 
   await TokenFamily.findOneAndUpdate(
     { userId: user._id },

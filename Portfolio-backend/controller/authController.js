@@ -292,7 +292,7 @@ exports.resetLinkHandler = async (request, response) => {
 
       return response
         .status(200)
-        .json({ success: false, message: "Password has been reset" });
+        .json({ success: true, message: "Password has been reset" });
     } else {
       return response.status(400).json({
         success: false,
