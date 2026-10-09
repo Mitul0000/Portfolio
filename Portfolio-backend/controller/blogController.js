@@ -5,8 +5,8 @@ exports.getAllBlogs = async (request, response) => {
     const Blogs = await Blog.find().select("title thumbnail tag views createdAt");
 
     if (Blogs.length === 0) {
-      return response.status(404).json({
-        success: false,
+      return response.status(200).json({
+        success: true,
         message: "No blogs found",
       });
     }

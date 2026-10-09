@@ -2,10 +2,10 @@ const Comment = require('../models/comment')
 
 exports.postComment = async (request,response) => {
   try{
-    const {user,blogId,content} = request.body;
+    const {blogId,content} = request.body;
     const comment = new Comment({
       blogId:blogId,
-      userId:user._id,
+      userId: request.user._id,
       content:content
     })
     await comment.save()
@@ -28,13 +28,13 @@ exports.getComment = async (request,response) =>{
 
     return response.status(200).json({
       comments:foundComments,
-      success:true,
+      success:false,
       message:"All Comments fetched successfully."
     })
 
   }catch (err){
     return response.status(500).json({
-      success:true,
+      success:false,
       message:err.message
     })
   }

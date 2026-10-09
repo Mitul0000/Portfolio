@@ -9,7 +9,7 @@ const {getComment,postComment} = require('../controller/commentController')
 const commentRoutes = express.Router();
 
 //public routes
-commentRoutes.get('/get:blogId',getComment);
+commentRoutes.get('/get/:blogId',getComment);
 
 //private routes
 commentRoutes.post('/post',isAuth,postComment);
