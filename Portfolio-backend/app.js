@@ -11,7 +11,7 @@ const commentRoutes = require('./router/commentRoutes');
 const blogRoutes = require('./router/blogRoutes');
 const toolRoutes = require('./router/toolsController')
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+app.use(cors({ origin: ['https://digifello.dev', 'https://www.digifello.dev'] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth/',authRoutes);
