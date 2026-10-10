@@ -3,6 +3,8 @@ import api from './axios';
 
 const AuthContext = createContext(null);
 
+//testing
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const userId = localStorage.getItem('userId');
