@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const TokenFamily = require("../models/TokenFamily");
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 const crypto = require("crypto");
 
 

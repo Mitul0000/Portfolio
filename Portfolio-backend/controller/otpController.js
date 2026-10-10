@@ -5,7 +5,7 @@ const OTP = require('../models/otpModel');
 const {sendMail} = require('../utils/sendMail');        
 const User = require('../models/User');             
 const { otpTemplate } = require('../utils/emailTemplates/otpTemplate');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 
 exports.generateOTP = async (request, response) => {

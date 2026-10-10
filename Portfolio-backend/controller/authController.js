@@ -1,7 +1,7 @@
 // This file has three functions which includes resister,login and logout.
 
 const User = require("../models/User");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv").config();
