@@ -1,184 +1,268 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../utils/AuthContext";
-import api from "../utils/axios";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from 'react';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { Search, Sun, Moon, Menu, X, PlusCircle, LayoutDashboard, LogOut } from 'lucide-react';
+import { useAuth } from '../utils/AuthContext';
+import SearchModal from './SearchModal';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
 
-  // Only be transparent on the home page
-  const isHome = location.pathname === "/";
-
+  // Apply theme class to document with transition support
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Handle outside click for user dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await api.post("/auth/logout");
-    } catch {}
-    logout();
-    navigate("/login");
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const links = [
-    { to: "/", label: "Home" },
-    { to: "/blogs", label: "Blogs" },
-    { to: "/tools", label: "Tools" },
-    { to: "/about", label: "About" },
-  ];
-  if (user) {
-    links.push({ to: "/tool-request", label: "Request Tool" });
-    links.push({ to: "/dashboard", label: "Dashboard" });
-  }
+  const handleLogout = async () => {
+    setIsUserMenuOpen(false);
+    await logout();
+    navigate('/');
+  };
 
-  const transparent = isHome && !scrolled;
+  const navLinks = [
+    { to: '/', label: 'Home' },
+    { to: '/tools', label: 'Tools' },
+    { to: '/blogs', label: 'Blogs' },
+    { to: '/services', label: 'Services' },
+    { to: '/consultancy', label: 'Consultancy' },
+    { to: '/about', label: 'About' },
+  ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        transparent
-          ? "bg-folio-purpledeep/25 backdrop-blur-sm border-transparent"
-          : "bg-gray-950/90 backdrop-blur-md border-b border-gray-800/60 shadow-lg shadow-black/20"
-      }`}
-    >
-      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-900/50 group-hover:scale-105 transition-transform">
-            D
-          </div>
-          <span className="text-white font-bold text-lg tracking-tight">
-            Digifello<span className="text-indigo-400"> AI</span>
-          </span>
-        </Link>
-
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
-          {links.map((l) => (
+    <>
+      <header className="sticky top-0 z-40 w-full border-b border-border bg-bg/90 backdrop-blur-md transition-colors">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+          
+          {/* Left: Brand Wordmark + Small Search Button (Requirement 1) */}
+          <div className="flex items-center gap-2.5">
             <Link
-              key={l.to}
-              to={l.to}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                location.pathname === l.to
-                  ? "text-indigo-400 bg-indigo-950/60"
-                  : "text-gray-300 hover:text-white hover:bg-white/5"
-              }`}
+              to="/"
+              className="text-lg font-bold tracking-tight text-text hover:opacity-85 transition-opacity flex items-center gap-1.5"
             >
-              {l.label}
+              <span>Digifello</span>
             </Link>
-          ))}
-        </div>
 
-        {/* Auth buttons */}
-        <div className="hidden md:flex items-center gap-2">
-          {user ? (
+            {/* Compact 34px round search button */}
             <button
-              onClick={handleLogout}
-              className="text-sm px-4 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 transition-all"
+              onClick={() => setIsSearchOpen(true)}
+              className="btn-icon"
+              title="Search (tools & articles)"
+              aria-label="Search site"
             >
-              Logout
+              <Search className="w-3.5 h-3.5" />
             </button>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="text-sm px-4 py-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition-all"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="text-sm px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-lg shadow-indigo-900/30 transition-all"
-              >
-                Get Started
-              </Link>
-            </>
-          )}
-        </div>
+          </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? (
-            <svg
-              width="18"
-              height="18"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" d="M6 6l12 12M6 18L18 6" />
-            </svg>
-          ) : (
-            <svg
-              width="18"
-              height="18"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </button>
-      </div>
+          {/* Center: Main Nav Links */}
+          <nav className="hidden md:flex items-center gap-7">
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? 'active' : ''}`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
 
-      {/* Mobile menu */}
-      <div
-        className={`md:hidden transition-all duration-300 overflow-hidden ${menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
-      >
-        <div className="bg-gray-950/95 backdrop-blur-md border-t border-gray-800/60 px-4 py-4 flex flex-col gap-1">
-          {links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="px-3 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
-              onClick={() => setMenuOpen(false)}
+          {/* Right: Theme Toggle + Profile Button (Requirement 1 & 2) */}
+          <div className="flex items-center gap-2.5">
+            {/* Small 34px round theme toggle button */}
+            <button
+              onClick={toggleTheme}
+              className="btn-icon"
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              aria-label="Toggle color theme"
             >
-              {l.label}
-            </Link>
-          ))}
-          <div className="border-t border-gray-800 mt-2 pt-3 flex gap-2">
+              {theme === 'dark' ? (
+                <Sun className="w-3.5 h-3.5 transition-transform duration-300 hover:rotate-45" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 transition-transform duration-300 hover:-rotate-12" />
+              )}
+            </button>
+
+            {/* Profile Avatar Button with Google One RGB rotating border on hover */}
             {user ? (
-              <button
-                onClick={handleLogout}
-                className="text-sm px-4 py-2 rounded-lg bg-gray-800 text-gray-300 w-full"
-              >
-                Logout
-              </button>
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="profile-avatar-wrapper group relative w-[34px] h-[34px] rounded-full p-[2px] focus:outline-none focus:ring-2 focus:ring-border transition-all active:scale-95"
+                  title="Account menu"
+                  aria-label="Open user menu"
+                >
+                  {/* Google One / Subscription 4-color RGB circular conic gradient ring */}
+                  <div className="google-rgb-ring absolute inset-0 rounded-full transition-opacity duration-300 opacity-80 group-hover:opacity-100" />
+
+                  {/* Inner Avatar Face */}
+                  <div className="relative w-full h-full rounded-full bg-surface border border-border/50 flex items-center justify-center text-text font-semibold text-[11px] uppercase z-10">
+                    {user.email ? user.email.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-52 bg-surface border border-border rounded-xl shadow-xl py-2 z-50 text-sm animate-fadeIn">
+                    <div className="px-3.5 py-2 border-b border-border text-xs text-muted truncate font-mono">
+                      {user.email || 'Logged in'}
+                    </div>
+                    <Link
+                      to="/tool-request"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3.5 py-2 text-text hover:bg-bg/80 transition-colors"
+                    >
+                      <PlusCircle className="w-4 h-4 text-text" />
+                      Request a Tool
+                    </Link>
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3.5 py-2 text-text hover:bg-bg/80 transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4 text-accent-sun" />
+                      My Requests
+                    </Link>
+                    <div className="border-t border-border my-1" />
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left flex items-center gap-2.5 px-3.5 py-2 text-accent-warm hover:bg-bg/80 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
-              <>
+              <div className="hidden sm:flex items-center gap-3 text-xs">
                 <Link
                   to="/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex-1 text-center text-sm py-2 rounded-lg bg-gray-800 text-gray-300"
+                  className="text-muted hover:text-text underline underline-offset-4 decoration-border hover:decoration-text transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex-1 text-center text-sm py-2 rounded-lg bg-indigo-600 text-white"
+                  className="px-3.5 py-1.5 rounded-full bg-text hover:bg-text/85 text-bg font-semibold text-xs border border-transparent transition-all shadow-sm hover:-translate-y-0.5"
                 >
-                  Get Started
+                  Sign Up
                 </Link>
-              </>
+              </div>
             )}
+
+            {/* Mobile hamburger menu toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden btn-icon"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
           </div>
         </div>
-      </div>
-    </nav>
+
+        {/* Mobile Full-Screen Drawer */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-bg/95 backdrop-blur-md px-6 py-6 space-y-4">
+            <nav className="flex flex-col space-y-3">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `text-base font-medium py-1.5 transition-colors ${
+                      isActive ? 'text-text font-semibold' : 'text-muted hover:text-text'
+                    }`
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+            </nav>
+
+            <div className="border-t border-border pt-4">
+              {user ? (
+                <div className="space-y-2">
+                  <div className="text-xs text-muted mb-2 font-mono">{user.email}</div>
+                  <Link
+                    to="/tool-request"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block text-sm text-text hover:opacity-80 py-1"
+                  >
+                    Request a Tool
+                  </Link>
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block text-sm text-text hover:opacity-80 py-1"
+                  >
+                    My Requests
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="block text-sm text-accent-warm py-1"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-3 pt-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex-1 text-center py-2.5 rounded-full border border-border text-text text-sm font-medium"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex-1 text-center py-2.5 rounded-full bg-text text-bg text-sm font-semibold"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Global Search Modal */}
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+    </>
   );
 }

@@ -1,42 +1,185 @@
+@import '@fontsource/geist-sans';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-bg: 31 32 40;
+    --color-surface: 38 40 51;
+    --color-border: 61 64 80;
+    --color-text: 244 245 247;
+    --color-muted: 154 159 176;
+    --color-accent: 59 158 255;
+    --color-accent-hover: 41 139 235;
+    --color-accent-warm: 255 90 95;
+    --color-accent-sun: 255 210 63;
+  }
+
+  .light {
+    --color-bg: 247 248 250;
+    --color-surface: 238 240 244;
+    --color-border: 216 219 228;
+    --color-text: 24 26 33;
+    --color-muted: 104 110 126;
+    --color-accent: 37 99 235;
+    --color-accent-hover: 29 78 216;
+    --color-accent-warm: 225 29 72;
+    --color-accent-sun: 202 138 4;
+  }
+
   body {
-    @apply bg-gray-950 text-gray-100 font-sans;
+    background-color: rgb(var(--color-bg));
+    color: rgb(var(--color-text));
+    font-family: 'Geist Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s ease;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  /* Round icon button: small 34px circle */
+  .btn-icon {
+    @apply w-[34px] h-[34px] rounded-full border border-border flex items-center justify-center text-muted hover:text-text hover:border-text transition-all bg-surface/50 focus:outline-none focus:ring-2 focus:ring-accent/30;
   }
-  .btn-secondary {
-    @apply bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors;
+
+  /* Interactive Pill Button Primary: Color fill sweep / transition animation */
+  .btn-pill-primary {
+    @apply relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm border border-transparent shadow-md focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+    background-color: rgb(var(--color-text));
+    color: rgb(var(--color-bg));
+    transition: color 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.35s ease, transform 0.2s ease, box-shadow 0.25s ease;
   }
-  .input-field {
-    @apply w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500;
+
+  .btn-pill-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgb(var(--color-accent)), rgb(var(--color-text)));
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+    z-index: 0;
+    border-radius: 9999px;
   }
-  .card {
-    @apply bg-gray-900 border border-gray-800 rounded-xl p-5;
+
+  .btn-pill-primary:hover::before {
+    opacity: 1;
+    transform: scaleX(1);
   }
-  .error-text {
-    @apply text-red-400 text-sm mt-1;
+
+  .btn-pill-primary:hover {
+    color: rgb(var(--color-bg));
+    border-color: rgb(var(--color-text) / 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(var(--color-accent), 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  }
+
+  .light .btn-pill-primary:hover {
+    color: rgb(var(--color-bg));
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .btn-pill-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-pill-primary > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Interactive Pill Button Secondary: Outline with color-wave fill on hover */
+  .btn-pill-secondary {
+    @apply relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-border bg-surface/60 text-text font-medium text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+    transition: color 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.35s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  }
+
+  .btn-pill-secondary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(var(--color-accent), 0.15), rgba(var(--color-text), 0.08));
+    opacity: 0;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    z-index: 0;
+    border-radius: 9999px;
+  }
+
+  .btn-pill-secondary:hover::before {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .btn-pill-secondary:hover {
+    color: rgb(var(--color-text));
+    border-color: rgb(var(--color-text) / 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-pill-secondary:active {
+    transform: translateY(0);
+  }
+
+  .btn-pill-secondary > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Pill search input container */
+  .pill-search-container {
+    @apply relative w-full flex items-center rounded-full border border-border bg-surface px-4 py-2.5 text-sm transition-all focus-within:border-text focus-within:ring-1 focus-within:ring-text/20;
+  }
+
+  /* Card styling */
+  .df-card {
+    @apply bg-surface border border-border rounded-xl transition-all duration-300;
+  }
+
+  /* Nav link */
+  .nav-link {
+    @apply text-sm text-muted hover:text-text transition-colors relative py-1;
+  }
+  .nav-link.active {
+    @apply text-text underline decoration-text decoration-1 underline-offset-8 font-medium;
   }
 }
 
-/* ── Marquee animation ─────────────────────────────── */
-@keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-33.333%); }
-}
-.animate-marquee {
-  animation: marquee 28s linear infinite;
+/* Google One / Subscription 4-color RGB circular conic ring */
+.google-rgb-ring {
+  background: conic-gradient(
+    #4285f4 0deg,
+    #ea4335 90deg,
+    #fbbc05 180deg,
+    #34a853 270deg,
+    #4285f4 360deg
+  );
 }
 
-/* ── Reduced motion ────────────────────────────────── */
+/* Keyframes for Rotating Profile Border on Hover */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.profile-avatar-wrapper:hover .google-rgb-ring {
+  animation: spin-slow 2s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee { animation: none; }
-  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
