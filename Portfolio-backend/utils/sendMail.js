@@ -21,9 +21,7 @@ exports.sendMail = async (to, subject, html) => {
       subject,
       html,
     })
-    console.log("Email sent successfully:", info.response)
   } catch (err) {
-    console.error("Error sending email:", err)
     throw err
   }
 }

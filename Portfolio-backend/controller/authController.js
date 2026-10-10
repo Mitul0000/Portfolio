@@ -219,7 +219,6 @@ exports.logoutUser = async (request, response) => {
 exports.forgotPassword = async (request, response) => {
   // This function receives email from the frontend and finds the user. If found then it generates forgotoken and create a reset link with it and the id of the user. It then sends the link to the email.
 
-  console.log("Request came to forgotPassword handler");
   try {
     const { email } = request.body;
 
@@ -247,7 +246,6 @@ exports.forgotPassword = async (request, response) => {
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}/${forgotToken}`;
 
-    console.log(`Reset link generated ${resetLink}`);
 
     await sendMail(
       user.email,
@@ -260,7 +258,6 @@ exports.forgotPassword = async (request, response) => {
       message: "Email sent successfully",
     });
   } catch (err) {
-    console.log(err);
     return response.status(500).json({
       success: false,
       message: "Something went wrong. Please try again.",
@@ -272,7 +269,6 @@ exports.resetLinkHandler = async (request, response) => {
   // When the user clicks the reset it. It collect the id and the token from it. Checks if the user exits or not if exits then
   try {
     const { id, token } = request.params;
-    console.log(id);
     const { New_password, Confirm_password } = request.body;
     const user = await User.findById(id);
     if (!user) {
@@ -300,7 +296,6 @@ exports.resetLinkHandler = async (request, response) => {
       });
     }
   } catch (err) {
-    console.log(err);
     return response.status(500).json({
       success: false,
       message: "Something went wrong. Please try again.",

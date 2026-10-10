@@ -31,7 +31,6 @@ exports.isAuth = async (request, response, next) => {
     request.user = userFound;
     next();
   } catch (err) {
-    console.log("Access token exxpired or invalid");
     return response.status(401).json({
       success: false,
       message: "Invalid or expired token",

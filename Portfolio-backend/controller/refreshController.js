@@ -15,7 +15,6 @@ exports.refreshToken = async (request, response) => {
   //This function takes refresh token from the frontend. It decodes the token and find the userId. After the the refresh token is verified the tokenfamily is found using the user id. If the current token of the family does not match with the receive token but it is found in the array of the token which means that the token was stolen. In other cases the token is expired and invalid. If is passes all then new access and refresh token is generated and it is sent to the frontend.
 
   // decode is done before beacuse if verify function finds an error then it will not have decode value. and witohut that we will not get the user id and the family. So we will not be able to compare and find the attack.
-  console.log("Inside refershController....");
   const { refreshToken } = request.body;
 
   if (!refreshToken) {
@@ -51,30 +50,18 @@ exports.refreshToken = async (request, response) => {
         message: "Invalid refresh token",
       });
     }
-    console.log("Incoming token:");
-    console.log(refreshToken);
 
-    console.log("Current hash:");
-    console.log(Family.currentToken);
-
-    console.log("History:");
-    console.log(Family.tokenFamily);
     // Check if token matches current token
     const incomingHash = hashToken(refreshToken);
     const isCurrentToken = incomingHash === Family.currentToken;
-    
-    console.log("isCurrentToken:", isCurrentToken);
-    console.log("tokenFamily length:", Family.tokenFamily.length);
-    console.log("err from verify:", err);
+  
 
     if (!isCurrentToken) {
       // Check if token exists in old family (reuse/theft attack)
-      console.log("Current refresh token is not the refresh token found");
       let isOldToken = false;
       for (const oldHash of Family.tokenFamily) {
         const match = incomingHash === oldHash;
         if (match) {
-          console.log("Attack detected");
           isOldToken = true;
           break;
         }
@@ -92,7 +79,6 @@ exports.refreshToken = async (request, response) => {
             alertTemplate(foundUser, request), // pass foundUser not User
           );
         } catch (mailErr) {
-          console.log("Security alert email failed:", mailErr.message);
         }
 
         return response.status(419).json({
@@ -101,7 +87,6 @@ exports.refreshToken = async (request, response) => {
             "Refresh token reuse detected. All tokens have been revoked.",
         });
       }
-      console.log("Refresh token expired no attack");
       // Token just doesn't match — invalid
       return response.status(401).json({
         success: false,
@@ -111,16 +96,12 @@ exports.refreshToken = async (request, response) => {
 
     // Token matched current — now check if it's expired
     if (err) {
-      console.log(err);
       return response.status(401).json({
         success: false,
         message: "Invalid or expired refresh token",
       });
     }
 
-    console.log(
-      "The refresh token is valid hence generating new refresh token and access token....",
-    );
 
     // All good — generate new tokens
     const newAccessToken = jwt.sign(
@@ -130,8 +111,6 @@ exports.refreshToken = async (request, response) => {
         expiresIn: "15m",
       },
     );
-    console.log("Incoming token:");
-    console.log(refreshToken);
 
     const newRefreshToken = jwt.sign(
       { userId: user.userId, jti: crypto.randomUUID() },
@@ -140,10 +119,7 @@ exports.refreshToken = async (request, response) => {
         expiresIn: "7d",
       },
     );
-    console.log("New token:");
-    console.log(newRefreshToken);
 
-    console.log("Tokens equal?", refreshToken === newRefreshToken);
     const hashedRefreshToken = hashToken(newRefreshToken);
 
     // Move current to family history before replacing
@@ -157,18 +133,6 @@ exports.refreshToken = async (request, response) => {
     await Family.save();
     const updated = await tokenFamily.findOne({ userId: user.userId });
 
-    console.log("Saved current hash:");
-    console.log(updated.currentToken);
-
-    console.log(
-      "Does OLD token match SAVED hash?",
-      hashToken(refreshToken) === updated.currentToken,
-    );
-
-    console.log(
-      "Does NEW token match SAVED hash?",
-      hashToken(newRefreshToken) === updated.currentToken,
-    );
 
     return response.status(200).json({
       success: true,

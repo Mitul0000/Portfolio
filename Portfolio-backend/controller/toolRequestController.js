@@ -38,7 +38,6 @@ exports.toolRequest = async (request, response) => {
       toolRequestTemplate(data),
     );
     }catch(err){
-      console.log("Admin email not sent for tool request :- ",err)
     }
 
     
@@ -48,7 +47,6 @@ exports.toolRequest = async (request, response) => {
       message: "Tool requested successfully",
     });
   }catch(err){
-    console.log(err);
     return response.status(500).json({
       success:false,
       message:"Server Error",
@@ -60,7 +58,6 @@ exports.getAllRequest = async (request,response)=>{
 
   try{
     const user = request.user
-    console.log(`The user who requested to get all request is ${user}`)
 
     const requestList =await ToolRequest.find({createdBy:user._id});
 
@@ -70,7 +67,6 @@ exports.getAllRequest = async (request,response)=>{
       message:"All request found",
     })
   }catch (err){
-    console.log(err);
     return response.status(500).json({
       success:false,
       message:err.message,

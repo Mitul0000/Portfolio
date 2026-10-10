@@ -62,7 +62,6 @@ exports.generateOTP = async (request, response) => {
     });
 
   } catch (err) {
-    console.error("generateOTP error:", err);
     return response.status(500).json({
       success: false,
       message: "Error generating OTP. Please try again.",
@@ -120,7 +119,6 @@ exports.verifyOTP = async (request, response) => {
     });
 
   } catch (err) {
-    console.error("verifyOTP error:", err);
     return response.status(500).json({
       success: false,
       message: "Error verifying OTP. Please try again.",
