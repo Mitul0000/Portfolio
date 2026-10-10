@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { usePageTitle } from '../utils/pageUtils';
 import { Spinner, EmptyState, ErrorState, Button } from '../components/UI';
-import blogCharImg from '../assets/blog_char.png';
+import blogCharImg from '../assets/blog_char.webp';
 import { Search, Eye, Calendar, ArrowRight, BookOpen } from 'lucide-react';
 
 export default function Blogs() {
@@ -105,7 +105,7 @@ export default function Blogs() {
           </div>
         </div>
 
-        {/* Hero Illustration (Constant blog_char.png Mascot - Enlarged) */}
+        {/* Hero Illustration (Constant blog_char.webp Mascot - Enlarged) */}
         <div className="lg:col-span-5 flex justify-center">
           <div className="relative w-full max-w-[380px] sm:max-w-[460px] lg:max-w-[500px] aspect-square flex items-center justify-center">
             <img

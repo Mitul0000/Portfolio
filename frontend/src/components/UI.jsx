@@ -1,5 +1,5 @@
 import React from 'react';
-import errorMascot from '../assets/Error.png';
+import errorMascot from '../assets/Error.webp';
 
 export function Button({
   children,

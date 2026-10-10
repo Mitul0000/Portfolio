@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { usePageTitle } from '../utils/pageUtils';
 import { Badge, Spinner, EmptyState, ErrorState, Button } from '../components/UI';
-import toolsImg from '../assets/tools.png';
+import toolsImg from '../assets/tools.webp';
 import { Search, ExternalLink, ArrowRight, Wrench, Sparkles } from 'lucide-react';
 
 export default function Tools() {
@@ -114,7 +114,7 @@ export default function Tools() {
           </div>
         </div>
 
-        {/* Hero Illustration (Constant tools.png Mascot - Enlarged) */}
+        {/* Hero Illustration (Constant tools.webp Mascot - Enlarged) */}
         <div className="lg:col-span-5 flex justify-center">
           <div className="relative w-full max-w-[380px] sm:max-w-[460px] lg:max-w-[500px] aspect-square flex items-center justify-center">
             <img

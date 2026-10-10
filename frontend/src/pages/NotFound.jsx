@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { usePageTitle } from '../utils/pageUtils';
 import { Button } from '../components/UI';
 import { Home, Wrench, BookOpen } from 'lucide-react';
-import errorMascot from '../assets/Error.png';
+import errorMascot from '../assets/Error.webp';
 
 export default function NotFound() {
   usePageTitle('Page Not Found');

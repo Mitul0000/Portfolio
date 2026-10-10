@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import char1 from '../assets/char_img_home_1.png';
-import char2 from '../assets/char_img_home_2.png';
-import char3 from '../assets/char_img_home_3.png';
-import char4 from '../assets/char_img_home_4.png';
+import char1 from '../assets/char_img_home_1.webp';
+import char2 from '../assets/char_img_home_2.webp';
+import char3 from '../assets/char_img_home_3.webp';
+import char4 from '../assets/char_img_home_4.webp';
 
 /**
  * Interactive rotating character showcase for Hero section.

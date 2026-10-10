@@ -7,7 +7,7 @@ import HeroArt from '../components/HeroArt';
 import ImageSlot from '../components/ImageSlot';
 import CustomToolFeature from '../components/CustomToolFeature';
 import CapabilitiesCarousel from '../components/CapabilitiesCarousel';
-import speakingImg from '../assets/speaking.png';
+import speakingImg from '../assets/speaking.webp';
 import { Button, Badge, Spinner } from '../components/UI';
 import {
   ArrowRight,
@@ -154,7 +154,7 @@ export default function Home() {
               {/* Subtle ambient backdrop aura */}
               <div className="absolute inset-6 sm:inset-8 rounded-full bg-accent/5 blur-2xl pointer-events-none" />
 
-              {/* Character Presenting (speaking.png) */}
+              {/* Character Presenting (speaking.webp) */}
               <img
                 src={speakingImg}
                 alt="Digifello Mascot Presenting"
